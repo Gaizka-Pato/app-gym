@@ -1,0 +1,16 @@
+{
+  "name": "GymApp",
+  "short_name": "GymApp",
+  "description": "Entrenos A1/B1/A2/B2 conectados al Excel",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1b33",
+  "theme_color": "#1f3864",
+  "icons": [
+    { "src": "icono-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icono-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
