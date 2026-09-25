@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#121110">
+  <title>Ares</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icono-192.png">
+  <link rel="apple-touch-icon" href="icono-192.png">
+  <link rel="stylesheet" href="estilo.css">
+  <!-- Antes de pintar nada: pone el tema guardado (y su icono) para que no se vea el otro un instante. -->
+  <script src="js/tema.js"></script>
+</head>
+<body>
+  <header class="superior">
+    <div class="superior-izquierda">
+      <h1 id="titulo">Ares</h1>
+      <!-- La foto de quien usa la app, en vez de su nombre. Se pone en Ajustes y sale del Excel común. -->
+      <button type="button" id="foto" class="foto" data-vista="ajustes" hidden></button>
+    </div>
+    <div class="superior-derecha">
+      <button id="estado" class="estado" type="button"></button>
+      <button type="button" class="engranaje" data-vista="ajustes" aria-label="Ajustes" title="Ajustes">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path fill="currentColor" d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.48.48 0 0 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="vista"></main>
+
+  <nav class="pestanas">
+    <button type="button" data-vista="inicio">Inicio</button>
+    <button type="button" data-vista="hoy" hidden>Entreno</button>
+    <button type="button" data-vista="historial">Historial</button>
+    <button type="button" data-vista="estado">Estado</button>
+    <button type="button" data-vista="social">Social</button>
+  </nav>
+
+  <div id="temporizador" class="temporizador" hidden>
+    <div class="temporizador-caja">
+      <p id="temporizador-ejercicio" class="temporizador-ejercicio"></p>
+      <p id="temporizador-tiempo" class="temporizador-tiempo">0:00</p>
+      <div class="temporizador-botones">
+        <button type="button" data-tiempo="-15">−15 s</button>
+        <button type="button" data-tiempo="15">+15 s</button>
+        <button type="button" id="temporizador-cerrar" class="principal">Saltar</button>
+      </div>
+      <p class="temporizador-ejercicio">Empezar otro</p>
+      <div class="temporizador-rapidos">
+        <button type="button" data-cuenta="60">1:00</button>
+        <button type="button" data-cuenta="90">1:30</button>
+        <button type="button" data-cuenta="120">2:00</button>
+        <button type="button" data-cuenta="180">3:00</button>
+        <button type="button" data-cuenta="0">⏱</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="selector" class="selector" hidden>
+    <div class="selector-caja" role="dialog" aria-modal="true" aria-labelledby="selector-titulo">
+      <h2 id="selector-titulo"></h2>
+      <div id="selector-contenido"></div>
+      <button type="button" id="selector-cerrar" class="discreto">Cancelar</button>
+    </div>
+  </div>
+
+  <div id="aviso" class="aviso" role="status" hidden></div>
+
+  <script src="js/calendario.js"></script>
+  <script src="js/almacen.js"></script>
+  <script src="js/grupos.js"></script>
+  <script src="js/records.js"></script>
+  <script src="js/ajuste.js"></script>
+  <script src="js/discos.js"></script>
+  <script src="js/fuerza.js"></script>
+  <script src="js/grafica.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/vistas.js"></script>
+  <script src="js/estado.js"></script>
+  <script src="js/social.js"></script>
+  <script src="js/inicio.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      // Cuando entra una versión nueva de la app, se recarga una vez para enseñarla (sin esperar a cerrarla y abrirla).
+      var habiaVersion = !!navigator.serviceWorker.controller;
+      var recargada = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!habiaVersion || recargada) return;
+        recargada = true;
+        location.reload();
+      });
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
+</body>
+</html>

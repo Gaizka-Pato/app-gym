@@ -1,0 +1,646 @@
+/* Dos temas, se cambia en Ajustes (se guarda en el movil, atributo data-tema del <html>):
+   - oscuro: negro y naranja, como el icono de la app.
+   - claro: blanco y verde, como el otro icono.
+   Todo el color sale de estas variables; mas abajo no hay ningun color suelto salvo las ilustraciones
+   (el fuego de las calorias) y los niveles de fuerza, que vienen de symmetricstrength.com.
+   Los colores de tipo de ejercicio imitan los del Excel: weak point azul, principal, secundario salmon. */
+:root, :root[data-tema="oscuro"] {
+  --fondo: #0a0a0a;
+  --panel: #161514;
+  --panel-2: #272422;
+  --cabecera: #121110;
+  --cabecera-texto: #f3efe9;
+  --cabecera-chip: rgba(255, 255, 255, .13);
+  --texto: #f3efe9;
+  --suave: #a39c94;
+  --acento: #fb6204;
+  --acento-2: #fc8c01;
+  --sobre-acento: #140800;
+  --acento-suave: rgba(251, 98, 4, .16);
+  --ok: #4cd08a;
+  --ok-suave: rgba(76, 208, 138, .13);
+  --sobre-ok: #10231a;
+  --error: #ff6b6b;
+  --error-suave: rgba(255, 107, 107, .18);
+  --sobre-error: #1b1b1b;
+  --debil: #9dc3e6;
+  --debil-suave: rgba(157, 195, 230, .18);
+  --principal: #ffffff;
+  --secundario: #f4b183;
+  --jump: #c5a3ff;
+  --neutro-suave: rgba(163, 156, 148, .18);
+  --linea: rgba(255, 255, 255, .1);
+  --velo: rgba(0, 0, 0, .92);
+  --velo-suave: rgba(0, 0, 0, .7);
+  --sombra: rgba(0, 0, 0, .55);
+  --aviso: #2f2b28;
+  --silueta: #3a3734;
+  --sin-datos: #575350;
+  --pasos: #3fc1f5;
+  --pasos-suave: rgba(63, 193, 245, .17);
+  --kcal: #ff9b52;
+  --radio: 14px;
+  color-scheme: dark;
+}
+
+:root[data-tema="claro"] {
+  --fondo: #f7f8f3;
+  --panel: #ffffff;
+  --panel-2: #e6ece0;
+  --cabecera: #3f8f3c;
+  --cabecera-texto: #ffffff;
+  --cabecera-chip: rgba(255, 255, 255, .22);
+  --texto: #2f3538;
+  --suave: #67736c;
+  --acento: #3f8f3c;
+  --acento-2: #6fbb45;
+  --sobre-acento: #ffffff;
+  --acento-suave: rgba(93, 160, 91, .18);
+  --ok: #2e8b57;
+  --ok-suave: rgba(46, 139, 87, .14);
+  --sobre-ok: #ffffff;
+  --error: #c4362c;
+  --error-suave: rgba(196, 54, 44, .14);
+  --sobre-error: #ffffff;
+  --debil: #2f6ea5;
+  --debil-suave: rgba(47, 110, 165, .14);
+  --principal: #2f3538;
+  --secundario: #b06a2c;
+  --jump: #7a4fc0;
+  --neutro-suave: rgba(103, 115, 108, .15);
+  --linea: rgba(0, 0, 0, .12);
+  --velo: rgba(28, 38, 32, .62);
+  --velo-suave: rgba(28, 38, 32, .45);
+  --sombra: rgba(0, 0, 0, .18);
+  --aviso: #dde7d6;
+  --silueta: #ccd6c8;
+  --sin-datos: #a8b4a4;
+  --pasos: #1f8fbf;
+  --pasos-suave: rgba(31, 143, 191, .16);
+  --kcal: #d9701d;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+
+/* Sin esto, el display de .temporizador y .aviso gana al atributo hidden y no se ocultan. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+
+button, input, select { font: inherit; color: inherit; }
+
+button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--panel-2);
+  border-radius: 10px;
+  background: var(--panel-2);
+  cursor: pointer;
+}
+button.principal { background: var(--acento); border-color: var(--acento); color: var(--sobre-acento); font-weight: 700; }
+button.discreto { background: transparent; }
+button:disabled { opacity: .5; }
+
+input, select {
+  min-height: 44px;
+  width: 100%;
+  padding: 0 10px;
+  border: 1px solid var(--panel-2);
+  border-radius: 10px;
+  background: var(--fondo);
+}
+input:focus, select:focus, button:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+
+.superior {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+  background: var(--cabecera);
+  color: var(--cabecera-texto);
+}
+.superior h1 { margin: 0; font-size: 1.15rem; }
+.superior-izquierda { display: flex; align-items: center; gap: 10px; min-width: 0; }
+/* Foto de quien usa la app: redonda, recortada por el centro y sin deformarse. */
+.foto {
+  min-height: 0;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  flex: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--cabecera-chip) center / cover no-repeat;
+}
+/* Ajustes → Tu foto: la muestra, el botón de elegir (que esconde el campo de archivo) y el de quitar. */
+.foto-fila { display: flex; align-items: center; gap: 14px; margin: 10px 0 4px; }
+.foto-elegir {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: var(--acento);
+  color: var(--sobre-acento);
+  font-weight: 700;
+  cursor: pointer;
+}
+.foto-elegir input { display: none; }
+.foto-fila button { margin-top: 8px; display: block; }
+.foto-grande { width: 96px; height: 96px; border-radius: 999px; background: var(--fondo) center / cover no-repeat; flex: none; }
+
+.superior-derecha { display: flex; align-items: center; gap: 6px; }
+.engranaje { min-height: 40px; width: 40px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 999px; background: transparent; color: inherit; }
+.engranaje.activa { background: var(--cabecera-chip); color: var(--cabecera-texto); }
+.ajustes-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.ajustes-cabecera h2 { margin: 0; font-size: 1.3rem; }
+.estado { min-height: 34px; font-size: .85rem; border-radius: 999px; background: var(--cabecera-chip); color: inherit; border: 0; }
+.estado.pendiente { background: var(--acento); color: var(--sobre-acento); }
+.estado.error { background: var(--error); color: var(--sobre-error); }
+
+main { padding: 12px 16px; max-width: 640px; margin: 0 auto; }
+
+/* Cambio de pestaña: la de antes sale por un lado mientras la nueva entra por el otro, las dos a la vez.
+   La que sale es una copia fija encima (.saliendo), puesta justo donde estaba; se quita al acabar. */
+@keyframes desliza-izquierda { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes desliza-derecha { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes sale-izquierda { from { transform: none; } to { transform: translateX(-100%); opacity: .2; } }
+@keyframes sale-derecha { from { transform: none; } to { transform: translateX(100%); opacity: .2; } }
+main.desliza-izquierda, main.desliza-derecha { animation: .26s cubic-bezier(.22, .61, .36, 1) both; }
+main.desliza-izquierda { animation-name: desliza-izquierda; }
+main.desliza-derecha { animation-name: desliza-derecha; }
+.saliendo {
+  position: fixed;
+  bottom: 0;
+  z-index: 4;
+  overflow: hidden;
+  padding: 12px 16px;
+  pointer-events: none;
+  animation: .26s cubic-bezier(.22, .61, .36, 1) both;
+}
+/* Paradas en el primer fotograma (la de antes donde estaba, la nueva fuera) mientras se monta la pantalla. */
+.esperando { animation-play-state: paused; }
+.saliendo.sale-izquierda { animation-name: sale-izquierda; }
+.saliendo.sale-derecha { animation-name: sale-derecha; }
+/* Que no salga barra de desplazamiento de lado mientras las pantallas van de una a otra.
+   Es "clip" y no "hidden" a posta: con hidden la cabecera deja de quedarse pegada arriba al bajar. */
+html { overflow-x: clip; }
+/* Entrar en Entreno (y volver a Inicio): la página gira como una hoja. Primero se va la de antes hasta quedar
+   de canto y luego entra la nueva desde el otro canto. */
+@keyframes flip-sale { from { transform: perspective(1400px) rotateY(0); } to { transform: perspective(1400px) rotateY(-90deg); } }
+@keyframes flip-entra { 0%, 50% { transform: perspective(1400px) rotateY(90deg); } to { transform: perspective(1400px) rotateY(0); } }
+@keyframes flip-sale-vuelta { from { transform: perspective(1400px) rotateY(0); } to { transform: perspective(1400px) rotateY(90deg); } }
+@keyframes flip-entra-vuelta { 0%, 50% { transform: perspective(1400px) rotateY(-90deg); } to { transform: perspective(1400px) rotateY(0); } }
+main.desliza-flip, main.desliza-flip-vuelta { animation: .5s cubic-bezier(.3, .7, .4, 1) both; transform-origin: 50% 40vh; backface-visibility: hidden; }
+main.desliza-flip { animation-name: flip-entra; }
+main.desliza-flip-vuelta { animation-name: flip-entra-vuelta; }
+.saliendo.sale-flip, .saliendo.sale-flip-vuelta { animation-duration: .25s; animation-timing-function: ease-in; backface-visibility: hidden; }
+.saliendo.sale-flip { animation-name: flip-sale; }
+.saliendo.sale-flip-vuelta { animation-name: flip-sale-vuelta; }
+@media (prefers-reduced-motion: reduce) {
+  main.desliza-izquierda, main.desliza-derecha, main.desliza-flip, main.desliza-flip-vuelta, .saliendo { animation-duration: .01s; }
+}
+
+/* En Entreno la pantalla es solo del entreno: sin pestañas abajo ni engranaje ni foto (que abren Ajustes). */
+body.modo-entreno { padding-bottom: env(safe-area-inset-bottom); }
+body.modo-entreno .pestanas, body.modo-entreno [data-vista="ajustes"] { display: none; }
+.terminar-entreno { margin: 4px 0 24px; }
+.terminar-entreno.confirmar { background: var(--error); border-color: var(--error); color: var(--sobre-error); }
+.salir-entreno { width: 100%; margin: 4px 0 24px; }
+
+/* Al terminar: confeti, felicidades y las tres caras. */
+.celebracion { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 16px; background: var(--velo-suave); animation: aparece .25s ease-out; }
+.confeti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 31; }
+.celebracion-tarjeta { position: relative; width: 100%; max-width: 380px; background: var(--panel); border-radius: var(--radio); padding: 22px 16px 18px; text-align: center; animation: salta .5s cubic-bezier(.3, 1.6, .5, 1); }
+.celebracion-trofeo { font-size: 3.4rem; line-height: 1; }
+.celebracion-tarjeta h2 { margin: 8px 0 6px; font-size: 1.6rem; color: var(--acento); }
+.celebracion-frase { margin: 0 0 16px; font-size: 1.05rem; }
+.caras { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+.cara { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 92px; padding: 8px 4px; font-size: .85rem; }
+.cara-emoji { font-size: 2.6rem; line-height: 1; }
+.cara.elegida { border-color: var(--acento); background: var(--acento-suave); }
+@keyframes aparece { from { opacity: 0; } to { opacity: 1; } }
+@keyframes salta { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .celebracion, .celebracion-tarjeta { animation: none; }
+}
+
+.pestanas {
+  position: fixed;
+  inset: auto 0 0 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--panel);
+  border-top: 1px solid var(--panel-2);
+}
+.pestanas button { border: 0; border-radius: 0; background: transparent; min-height: 60px; padding: 0 2px; font-size: .9rem; color: var(--suave); }
+.pestanas button.activa { color: var(--acento); font-weight: 700; }
+
+.tarjeta { background: var(--panel); border-radius: var(--radio); padding: 14px; margin-bottom: 12px; }
+
+.toca { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.toca h2 { margin: 0; font-size: 1.5rem; flex: 1 1 auto; }
+.toca .etiqueta { color: var(--suave); font-size: .9rem; width: 100%; }
+.selectores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+
+.ejercicio { border-left: 5px solid var(--principal); }
+.ejercicio.debil { border-left-color: var(--debil); }
+.ejercicio.secundario { border-left-color: var(--secundario); }
+.ejercicio.jump { border-left-color: var(--jump); }
+.ejercicio.extra { border-left-color: var(--ok); }
+.anadir-ejercicio { width: 100%; min-height: 52px; margin-bottom: 12px; border-style: dashed; background: transparent; color: var(--suave); }
+.ejercicio.hecho { opacity: .75; }
+
+.ejercicio-cabecera { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.ejercicio h3 { margin: 0; font-size: 1.1rem; }
+.tipo { font-size: .75rem; text-transform: uppercase; letter-spacing: .04em; color: var(--suave); white-space: nowrap; }
+.objetivo { margin: 4px 0 2px; font-size: 1.05rem; font-weight: 700; }
+.detalle, .ultima-vez { margin: 0; color: var(--suave); font-size: .9rem; }
+
+.series { display: grid; gap: 8px; margin-top: 10px; }
+.serie {
+  display: grid;
+  grid-template-columns: 34px 1fr 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+.serie .numero { color: var(--suave); text-align: center; }
+.serie.opcional .numero::after { content: "*"; }
+.serie input { text-align: center; }
+.serie button { min-width: 64px; }
+.serie.hecha { background: var(--ok-suave); border-radius: 10px; }
+.serie.hecha button { background: var(--ok); border-color: var(--ok); color: var(--sobre-ok); font-weight: 700; }
+.serie .subida { font-size: .7rem; color: var(--suave); grid-column: 2 / 5; margin-top: -4px; }
+/* Ejercicios con el peso del cuerpo: en el hueco de los kg no hay nada que escribir. */
+.serie .peso-corporal { color: var(--suave); text-align: center; font-size: .85rem; }
+
+.rm { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--acento-suave); }
+.rm p { margin: 0 0 8px; }
+
+.lista-historial button { width: 100%; text-align: left; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.grafica { width: 100%; height: auto; }
+.grafica .guia { stroke: var(--panel-2); stroke-width: 1; }
+.grafica .eje { fill: var(--suave); font-size: 10px; }
+.grafica .linea { fill: none; stroke: var(--acento); stroke-width: 2.5; stroke-linejoin: round; }
+.grafica .punto { fill: var(--acento); }
+.tabla-dias { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tabla-dias td { padding: 6px 4px; border-top: 1px solid var(--panel-2); vertical-align: top; }
+.tabla-dias td:first-child { color: var(--suave); white-space: nowrap; }
+
+.campo { display: grid; gap: 4px; margin-bottom: 12px; }
+.campo span { color: var(--suave); font-size: .9rem; }
+.vacio { color: var(--suave); text-align: center; padding: 20px 0; }
+
+.temporizador {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: var(--velo);
+}
+.temporizador-caja { text-align: center; width: 100%; max-width: 360px; }
+.temporizador-ejercicio { color: var(--suave); margin: 0; }
+.temporizador-tiempo { font-size: 5rem; font-weight: 800; margin: 10px 0 20px; font-variant-numeric: tabular-nums; }
+.temporizador.terminado .temporizador-tiempo { color: var(--acento); }
+.temporizador-botones { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px; }
+
+.aviso {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 30;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--aviso);
+  box-shadow: 0 6px 20px var(--sombra);
+  text-align: center;
+}
+.aviso.error { background: var(--error); color: var(--sobre-error); }
+
+/* Grupos musculares del día y de cada ejercicio */
+.grupos-dia { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--texto);
+  font-size: .85rem;
+}
+button.chip { min-height: 32px; border: 0; }
+.chip.grupo { background: var(--debil-suave); color: var(--debil); }
+.chip.corporal { background: var(--ok-suave); color: var(--ok); }
+.acciones-cabecera { display: flex; gap: 8px; margin-top: 10px; }
+.acciones-cabecera button, .acciones-cabecera a.boton { flex: 1; }
+a.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--panel-2);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: inherit;
+  text-decoration: none;
+}
+
+.ejercicio-info { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 2px; }
+/* El asterisco del nombre: el ejercicio tiene variantes (otra forma de hacerlo, con su propio 1RM). */
+.asterisco { min-height: 24px; padding: 0 4px; margin-left: 2px; border: 0; background: transparent; color: var(--acento); font-size: 1.3rem; line-height: 1; vertical-align: top; }
+.ejercicio-notas { border-left: 3px solid var(--linea); padding-left: 8px; margin: 6px 0 2px; }
+.cambiado { margin: 2px 0 0; color: var(--acento); font-size: .85rem; }
+.ejercicio-acciones { display: flex; gap: 8px; margin-top: 8px; }
+.ejercicio-acciones button { flex: 1; }
+
+/* Temporizador: tiempos rápidos y cronómetro */
+.temporizador-rapidos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+.temporizador-rapidos button { padding: 0 4px; }
+.temporizador .temporizador-ejercicio + .temporizador-rapidos { margin-top: 6px; }
+.temporizador-caja > .temporizador-ejercicio:nth-of-type(2) { margin-top: 22px; font-size: .85rem; }
+
+/* Selector de ejercicio alternativo y de grupo */
+.selector {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  display: flex;
+  align-items: flex-end;
+  background: var(--velo-suave);
+}
+.selector-caja {
+  width: 100%;
+  max-width: 640px;
+  max-height: 85vh;
+  margin: 0 auto;
+  overflow-y: auto;
+  padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background: var(--panel);
+}
+.selector-caja h2 { margin: 0 0 4px; font-size: 1.15rem; }
+.selector-caja .detalle { margin-bottom: 10px; }
+.opciones { display: grid; gap: 8px; margin: 10px 0; }
+.opciones button { text-align: left; }
+.opciones button.actual { border-color: var(--acento); }
+.otro { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin: 10px 0; }
+#selector-cerrar { width: 100%; margin-top: 6px; }
+.selector-caja > input, .selector-caja #selector-contenido > input { margin: 6px 0; }
+.selector-caja #selector-contenido > .principal { width: 100%; margin-top: 8px; }
+
+/* Historial agrupado por grupo muscular */
+.grupos-historial { margin-top: 10px; }
+.grupo-historial { border-top: 1px solid var(--panel-2); }
+.grupo-historial summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  cursor: pointer;
+  font-weight: 700;
+  list-style: none;
+}
+.grupo-historial summary::-webkit-details-marker { display: none; }
+.grupo-historial summary::before { content: "▸"; margin-right: 8px; color: var(--suave); }
+.grupo-historial[open] > summary::before { content: "▾"; }
+.grupo-historial summary > span:first-child { flex: 1; }
+.musculos { padding-left: 16px; margin-bottom: 8px; }
+.grupo-historial.musculo summary { min-height: 42px; font-weight: 600; color: var(--suave); }
+.grupo-historial.musculo[open] > summary { color: inherit; }
+/* Tercer nivel: las variantes de un ejercicio (Curl de Bíceps → Barra Z, Mancuerna) */
+.grupo-historial.variantes { border-top: none; margin-bottom: 8px; }
+.grupo-historial.variantes > summary { min-height: 40px; font-weight: 600; padding: 4px 10px; background: var(--panel-2); border-radius: 10px; }
+.grupo-historial.variantes > summary .tipo { color: var(--suave); font-weight: 400; }
+.grupo-historial.variantes > .lista-historial { padding: 8px 0 0 14px; }
+.records p { margin: 0 0 8px; }
+.dias-historial .dia { display: grid; grid-template-columns: 76px 1fr; gap: 8px; padding: 7px 0; border-top: 1px solid var(--panel-2); font-size: .9rem; }
+.dias-historial .dia-fecha { color: var(--suave); }
+.serie-hist { display: inline-block; margin: 0 8px 2px 0; }
+.serie-hist.record { color: var(--acento); font-weight: 700; }
+.serie.record { box-shadow: inset 0 0 0 2px var(--acento); border-radius: 10px; }
+
+/* Ejercicios que entran en el ciclo actual */
+.lista-historial button.en-ciclo { background: var(--acento-suave); border-color: var(--acento); }
+.lista-historial button.en-ciclo span:first-child { color: var(--acento); font-weight: 700; }
+
+/* Dos apartados dentro de Historial */
+.segmentos { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.segmentos button { padding: 4px 8px; line-height: 1.2; }
+.segmentos button.activa { background: var(--acento); border-color: var(--acento); color: var(--sobre-acento); font-weight: 700; }
+
+/* Gráfica de proyectado frente a realizado */
+.grafica .linea2 { fill: none; stroke: var(--debil); stroke-width: 2; stroke-dasharray: 5 4; }
+.grafica .punto2 { fill: var(--debil); }
+.leyenda { display: flex; align-items: center; gap: 6px; margin: 4px 0 0; color: var(--suave); font-size: .85rem; }
+.leyenda .muestra { width: 16px; height: 3px; display: inline-block; border-radius: 2px; }
+.leyenda .muestra.estimado { background: var(--debil); }
+.leyenda .muestra.real { background: var(--acento); }
+/* Columna hecha con otro ejercicio: una ✕ sobre la línea, en lo que cuenta aquí ese día */
+.grafica .punto-cambio line { stroke: var(--secundario); stroke-width: 2.5; stroke-linecap: round; }
+.leyenda .muestra.cambio { width: auto; height: auto; background: none; color: var(--secundario); font-weight: 700; }
+.ver-otro { margin-top: 6px; }
+.ver-otro button { background: var(--panel-2); color: var(--secundario); border: 1px solid var(--secundario);
+  border-radius: 999px; padding: 4px 10px; font-size: .85rem; margin: 0 6px 4px 0; }
+.cambio-ciclo { color: var(--secundario); margin: 2px 0 0; }
+.progreso-ejercicio { border-top: 1px solid var(--panel-2); padding-top: 10px; margin-top: 10px; }
+.progreso-ejercicio h3 { margin: 0 0 2px; font-size: 1.05rem; }
+.progreso-resumen { margin: 0 0 6px; color: var(--suave); font-size: .9rem; }
+
+/* Pestaña Estado (análisis de fuerza) */
+.estado-foto { margin-bottom: 12px; }
+.estado-total { display: flex; align-items: center; gap: 14px; margin: 8px 0 10px; }
+.estado-numero { font-size: 3rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.estado-total .detalle { margin-top: 4px; }
+.chip.nivel { color: #10182b; font-weight: 700; }
+.tabla-dias td.numero { text-align: right; font-variant-numeric: tabular-nums; color: var(--texto); }
+.estado-categorias { margin-bottom: 8px; }
+.estado-mas { border-top: 1px solid var(--linea); padding-top: 8px; margin-bottom: 8px; }
+.estado-mas .tarjeta { padding: 8px 0 0; margin: 0; background: none; }
+.estado-categorias td:last-child { text-align: right; }
+.opciones.dos { grid-template-columns: 1fr 1fr; }
+.aparte { margin-top: 10px; }
+.fd-barras { display: grid; gap: 8px; margin-top: 10px; }
+.fd-fila { display: grid; grid-template-columns: 7.5em 1fr; align-items: center; gap: 8px; font-size: .9rem; }
+.fd-nombre { color: var(--suave); }
+.fd-pista { position: relative; height: 26px; background: linear-gradient(var(--suave), var(--suave)) center / 1px 100% no-repeat; }
+.fd-barra { position: absolute; top: 3px; bottom: 3px; border-radius: 4px; }
+.fd-barra.mas { background: var(--ok); }
+.fd-barra.menos { background: var(--error); }
+.fd-valor { position: absolute; top: 3px; font-size: .8rem; font-weight: 700; }
+.fd-valor.mas { right: calc(50% + 4px); color: var(--ok); }
+.fd-valor.menos { left: calc(50% + 4px); color: var(--error); }
+.figuras { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.figura { width: 100%; height: auto; max-height: 420px; }
+.figura .silueta { fill: var(--silueta); }
+.figura .musculo { stroke: var(--fondo); stroke-width: .4; cursor: pointer; }
+.figura .musculo.sin-datos { fill: var(--sin-datos); }
+.figura .eje { fill: var(--suave); font-size: 6px; }
+.niveles { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 8px; font-size: .8rem; color: var(--suave); }
+.nivel-leyenda { display: inline-flex; align-items: center; gap: 5px; }
+.punto-nivel { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.fotos tr { cursor: pointer; }
+.fotos tr.elegida td { background: var(--acento-suave); }
+.fotos td:last-child { text-align: right; }
+
+/* Faltas (pestaña Estado) */
+.faltas h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.marcador { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+.marcador > button { display: flex; flex-direction: column; align-items: center; background: var(--panel-2); border: 2px solid transparent; border-radius: 12px; padding: 10px 6px; color: inherit; font: inherit; cursor: pointer; }
+.marcador > button.abierto { border-color: var(--acento); }
+.marcador strong { font-size: 2.6rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.marcador .ver { font-size: .8rem; color: var(--acento); margin-top: 2px; }
+.lista-faltas li .revisar-botones { flex: 1 1 100%; }
+.lista-faltas { list-style: none; margin: 4px 0 10px; padding: 0; }
+.lista-faltas li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 0; border-top: 1px solid var(--panel-2); }
+.lista-faltas li.justificar input { flex: 1 1 100%; }
+
+/* Social */
+.pestanas button.con-aviso { position: relative; }
+.pestanas button.con-aviso::after { content: ''; position: absolute; top: 12px; right: calc(50% - 30px); width: 9px; height: 9px; border-radius: 50%; background: var(--error); }
+.selector-persona { margin-top: 0; }
+.selector-persona button { text-align: center; font-weight: 700; }
+.social-linea { margin: 0.2rem 0 0; text-align: center; }
+.social-linea:empty { display: none; }
+.revisar { border-top: 1px solid var(--panel-2); padding: 8px 0; }
+.revisar p { margin: 0 0 8px; }
+.revisar-botones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.hoy-social { font-size: 1.05rem; margin: 0 0 6px; }
+.dia-social { border-top: 1px solid var(--panel-2); padding: 10px 0 4px; }
+.dia-social .ejercicio-cabecera { flex-wrap: wrap; gap: 6px; }
+.chip.resultado { font-size: .8rem; }
+.chip.resultado.bien { background: var(--ok-suave); color: var(--ok); }
+.chip.resultado.mal { background: var(--error-suave); color: var(--error); }
+.chip.resultado.espera { background: var(--acento-suave); color: var(--acento); }
+.chip.resultado.neutro { background: var(--neutro-suave); color: var(--suave); }
+.reacciones { margin-top: 6px; }
+.reacciones-barra { display: flex; gap: 8px; align-items: center; }
+.reacciones-barra button, .reacciones-barra .like { min-height: 36px; padding: 4px 12px; border-radius: 18px; background: var(--panel-2); border: 0; font-size: .9rem; }
+.reacciones-barra .like.dado { color: var(--error); }
+.comentario { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding: 6px 0; }
+.comentario p { margin: 0; flex: 1 1 60%; }
+.comentario button { min-height: 28px; padding: 0 8px; }
+.escribir { display: flex; gap: 8px; margin-top: 6px; }
+.escribir input { flex: 1; min-width: 0; }
+
+/* Carrusel de gráficas (evolución del ciclo) */
+.carrusel-barra { display: flex; align-items: center; gap: 6px; margin: 0 0 8px; }
+.carrusel-barra input { flex: 1; min-width: 0; }
+.carrusel-flecha { min-width: 44px; padding: 0; font-size: 1.4rem; line-height: 1; }
+.carrusel-contador { min-width: 3.4em; text-align: center; color: var(--suave); font-size: .9rem; font-variant-numeric: tabular-nums; }
+.carrusel { position: relative; display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; margin-bottom: 12px; }
+.carrusel::-webkit-scrollbar { display: none; }
+.carrusel > .diapositiva { flex: 0 0 100%; scroll-snap-align: start; margin: 0; border-top: 0; }
+.selector-ciclo { width: 100%; margin-bottom: 8px; }
+
+/* Pestaña Inicio */
+.inicio-hoy h2 { margin: 0 0 4px; font-size: 1.5rem; }
+button.grande { width: 100%; min-height: 56px; margin-top: 12px; font-size: 1.1rem; }
+.inicio-pasos h3 { margin: 0 0 8px; }
+.inicio-resumen { margin: 6px 0 2px; text-align: center; font-weight: 700; }
+.centrado { text-align: center; }
+/* Pasos y calorías, una al lado de la otra */
+.inicio-dos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.inicio-dos .tarjeta { margin-bottom: 12px; padding: 12px 10px; min-width: 0; }
+.tarjeta.compacta h3 { margin: 0 0 6px; text-align: center; font-size: 1rem; }
+.tarjeta.compacta .inicio-resumen { font-size: .9rem; }
+.tarjeta.compacta .anillo { width: 100%; max-width: 140px; }
+.inicio-kcal.compacta { display: flex; flex-direction: column; }
+.kcal-hoy { margin: 10px 0 8px; text-align: center; font-size: 1.7rem; font-weight: 700; color: var(--kcal); }
+.inicio-kcal.compacta .detalle { margin-top: auto; }
+
+/* Anillo de pasos y barras de pasos y calorías */
+.anillo-caja { display: grid; place-items: center; }
+.anillo { width: 190px; max-width: 70%; height: auto; }
+.anillo-fondo { fill: none; stroke: var(--pasos-suave); }
+.anillo-valor { fill: none; stroke: var(--pasos); stroke-linecap: round; }
+.anillo-numero { fill: var(--texto); font-size: 34px; font-weight: 700; }
+.anillo-de { fill: var(--texto); font-size: 13px; }
+.anillo-porcentaje { fill: var(--pasos); font-size: 14px; }
+.barras .barra { fill: var(--pasos); }
+.barras .barra.corta { fill: var(--pasos); opacity: .45; }
+.barras.kcal .barra { fill: var(--kcal); }
+.barras .objetivo { stroke: var(--acento); stroke-width: 1.5; stroke-dasharray: 5 4; }
+.barras .valor { fill: var(--texto); font-size: 9px; }
+
+/* Al tocar una barra sale el día con su valor */
+.grafica-caja { position: relative; }
+.barras .zona { fill: transparent; cursor: pointer; }
+.barras .barra.activa { fill: var(--acento); }
+.pista {
+  position: absolute;
+  transform: translateY(-100%);
+  margin-top: -6px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  border: 1px solid var(--panel-2);
+  background: var(--panel-2);
+  color: var(--texto);
+  font-size: .78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+  box-shadow: 0 4px 14px var(--sombra);
+}
+
+/* Fuego de las calorías (Inicio) */
+.fuego-caja { display: grid; place-items: center; margin: 4px 0 2px; }
+.fuego { width: 100%; max-width: 104px; height: auto; }
+.fuego-llama { fill: #ee3b33; stroke: #b52d26; stroke-width: 3.5; stroke-linejoin: round; }
+.fuego-centro { fill: #ffd75e; stroke: #f0a92e; stroke-width: 2.5; stroke-linejoin: round; }
+.fuego-brillo { fill: #f9a825; }
+.fuego-ojo { fill: #4a2226; }
+.fuego-luz { fill: #fff; }
+.fuego-color { fill: #f2a07a; opacity: .85; }
+.fuego-boca { fill: #4a2226; }
+.fuego-lengua { fill: #e0555a; }
+.fuego-linea { fill: none; stroke: #4a2226; stroke-width: 3.5; stroke-linecap: round; }
+.fuego-lagrima { fill: #7cc8f2; stroke: #3d98c9; stroke-width: 1.5; }
+/* Cuanto peor va la semana, más apagado y encogido el fuego. */
+.fuego { transform-origin: 50% 100%; transition: filter .4s, transform .4s; }
+.fuego.preocupado { filter: saturate(.75); transform: scale(.95); }
+.fuego.triste { filter: saturate(.45) brightness(.9); transform: scale(.88, .84); }
+.kcal-animo { margin: 0; font-size: .8rem; color: var(--suave); text-align: center; }
+
+/* Ajustes plegables: cada bloque se abre al tocarlo */
+.plegable { padding: 0; }
+.plegable > summary { display: flex; align-items: center; gap: 10px; padding: 14px; cursor: pointer; list-style: none; min-height: 52px; }
+.plegable > summary::-webkit-details-marker { display: none; }
+.plegable > summary::after { content: '⌄'; margin-top: -7px; color: var(--suave); font-size: 1.3rem; line-height: 1; transition: transform .15s; }
+.plegable[open] > summary::after { transform: rotate(180deg); }
+.plegable-titulo { margin-right: auto; font-size: 1.15rem; font-weight: 700; }
+.plegable-pista { color: var(--suave); font-size: .85rem; text-align: right; }
+.plegable-cuerpo { padding: 0 14px 14px; }
+.plegable-cuerpo > :first-child { margin-top: 0; }
+
+/* Editar o quitar un ejercicio desde su ficha del historial */
+.acciones-ejercicio { display: flex; gap: 8px; margin: 4px 0 10px; }
+.acciones-ejercicio button { flex: 1; }
+
+/* Ajustes → Aspecto: los dos temas, con su icono */
+.temas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tema { display: grid; justify-items: center; gap: 2px; min-height: 0; padding: 12px 8px; line-height: 1.25; }
+.tema.actual { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
+.tema-icono { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 4px; }
+.tema-nombre { font-weight: 700; }
+.tema .detalle { font-size: .8rem; }
